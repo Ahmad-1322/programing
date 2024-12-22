@@ -1,0 +1,6 @@
+TABLE: student
+COLUMN: st_id INT
+COLUMN: st_name TEXT
+COLUMN: st_city TEXT
+ROW: [COLUMNS] st_id,st_name,st_city [VALUES] 1,'Ali','Riyadh'
+ROW: [COLUMNS] st_id,st_name,st_city [VALUES] 2,'Sara','Jeddah'

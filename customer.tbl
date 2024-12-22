@@ -1,0 +1,6 @@
+TABLE: customer
+COLUMN: customer_id INT
+COLUMN: customer_name TEXT
+COLUMN: customer_city TEXT
+ROW: [COLUMNS] customer_id,customer_name,customer_city [VALUES] 1,'Ali','Riyadh'
+ROW: [COLUMNS] customer_id,customer_name,customer_city [VALUES] 2,'Sara','Jeddah'

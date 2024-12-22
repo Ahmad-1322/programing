@@ -1,0 +1,6 @@
+TABLE: cityInfo
+COLUMN: city_id INT
+COLUMN: city_name TEXT
+COLUMN: population INT
+ROW: [COLUMNS] city_id,city_name,population [VALUES] 10,'Dammam',123456
+ROW: [COLUMNS] city_id,city_name,population [VALUES] 11,'Makkah',500000
