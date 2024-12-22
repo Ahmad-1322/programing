@@ -1,3 +1,8 @@
+/*NAME:ALHAJ MOHAMAD AHMAD ID: 1231301074
+NAMA:ahmed mahmoud ID:243UC245XT
+NAME:MOHAMED MUSSA ID:241UC240XY
+NAME:Zardawi,ABDULAZEEZ ASHOOR ID:241UC240VM*/
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -5,18 +10,21 @@
 #include <algorithm>
 #include <cctype>
 
-// يتحقّق إن كان الملف موجودًا
+// يتأكد إذا الملف موجود ولا لا
+// Checks if the file exists
 bool fileExists(const std::string& filename) {
     std::ifstream f(filename.c_str());
     return f.good();
 }
 
-// لمعرفة إن كان النص يبدأ بمقطع معيّن
+// عشان نعرف إذا النص يبدأ بمقطع معيّن
+// To check if the string starts with a certain prefix
 bool startsWith(const std::string& s, const std::string& p) {
     return (s.size() >= p.size() && s.compare(0, p.size(), p) == 0);
 }
 
-// لحذف المسافات في بداية ونهاية السلسلة
+// نشيل المسافات من بداية وآخر النص
+// Removes leading and trailing whitespace from a string
 std::string trim(const std::string& str) {
     std::string r = str; 
     while (!r.empty() && std::isspace((unsigned char)r.front())) r.erase(r.begin());
@@ -24,7 +32,8 @@ std::string trim(const std::string& str) {
     return r;
 }
 
-// يفصل النص حسب محدّد معيّن (مثل ",")
+// نقسم النص حسب محدّد معيّن مثل ','
+// Splits the string by a given delimiter
 std::vector<std::string> split(const std::string& src, char delimiter) {
     std::vector<std::string> tokens;
     std::string tmp;
@@ -43,10 +52,12 @@ std::vector<std::string> split(const std::string& src, char delimiter) {
 }
 
 int main() {
-    // الملف الذي سنقرأ منه الأوامر
+    // هذا هو الملف اللي بنقرا منه الأوامر
+    // File that we read commands from
     std::string dataFile = "data.txt";
 
-    // إن لم يكن موجودًا، ننشئه فارغًا
+    // إذا مهو موجود، ينشئه فاضي
+    // If it doesn't exist, create an empty file
     if (!fileExists(dataFile)) {
         std::ofstream createFile(dataFile);
         if (!createFile) {
@@ -57,9 +68,12 @@ int main() {
         createFile.close();
     }
 
-    // قائمات لتخزين أسماء الملفات والقواعد والجداول
+    // هذي القوائم بتحتفظ بأسماء الداتا بيز والجداول
+    // These vectors store the names of databases and tables
     std::vector<std::string> dbs, tables;
 
+    // نفتح الملف للقراءة
+    // Open the file for reading
     std::ifstream in(dataFile);
     if (!in.is_open()) {
         std::cerr << "Can't open " << dataFile << std::endl;
@@ -73,12 +87,14 @@ int main() {
         line = trim(line);
         if (line.empty()) continue;
         if (!line.empty() && line.back() == ';') {
-            line.pop_back(); // إزالة الفاصلة المنقوطة بالآخر
+            line.pop_back(); // نشيل الفاصلة المنقوطة
+                             // remove semicolon
         }
 
         // CREATE TABLE tableName(...)
         if (startsWith(line, "CREATE TABLE")) {
-            // مثال: CREATE TABLE customer(customer_id INT, customer_name TEXT,...)
+            // يخلق ملف .tbl ويخزن أعمدة الجدول
+            // Creates a .tbl file and stores table columns
             std::string s = trim(line.substr(12));
             auto p1 = s.find('('), p2 = s.rfind(')');
             if (p1 == std::string::npos || p2 == std::string::npos) {
@@ -94,8 +110,11 @@ int main() {
             } else {
                 tables.push_back(tName);
                 std::cout << "[OK] Table created: " << tName << std::endl;
+                
+                // نكتب اسم الجدول والأعمدة بالملف
+                // Write table name and columns in the file
                 f << "TABLE: " << tName << "\n";
-                // تخزين الأعمدة في الملف كل سطر يبدأ بـ "COLUMN:"
+
                 auto columnsList = split(cols, ',');
                 for (auto& c : columnsList) {
                     f << "COLUMN: " << c << "\n";
@@ -106,7 +125,8 @@ int main() {
 
         // CREATE <dbFile>
         else if (startsWith(line, "CREATE ")) {
-            // يعامله كأنه إنشاء قاعدة
+            // يعامله كأنه قاعدة بيانات
+            // Treats it like a database
             std::string db = trim(line.substr(6));
             std::ofstream f(db);
             if (!f.is_open()) {
@@ -120,6 +140,8 @@ int main() {
 
         // DATABASES
         else if (line == "DATABASES") {
+            // يعرض أسماء الملفات اللي اعتبرناها داتا بيز
+            // Lists the files we treated as databases
             std::cout << "> Listing Databases:\n";
             if (dbs.empty()) std::cout << "(No databases found)\n";
             else for (auto& d : dbs) std::cout << d << "\n";
@@ -127,6 +149,8 @@ int main() {
 
         // TABLES
         else if (line == "TABLES") {
+            // يعرض أسماء الجداول اللي بنيناها
+            // Lists the tables we have created
             std::cout << "> Listing Tables:\n";
             if (tables.empty()) std::cout << "(No tables found)\n";
             else for (auto& t : tables) std::cout << t << "\n";
@@ -134,7 +158,8 @@ int main() {
 
         // INSERT INTO tableName(...) VALUES(...)
         else if (startsWith(line, "INSERT INTO")) {
-            // مثال: INSERT INTO customer(col1,col2,...) VALUES(val1,val2,...)
+            // يخزن الصف في ملف الجدول
+            // Stores a row in the table file
             std::string s = trim(line.substr(11));
             auto p1 = s.find('('), p2 = s.find(')');
             if (p1 == std::string::npos || p2 == std::string::npos) {
@@ -147,7 +172,6 @@ int main() {
                 std::cerr << "Syntax error: missing VALUES\n";
                 continue;
             }
-            // نبحث عن ( ) بعد VALUES
             auto ps = afterCols.find('('), pe = afterCols.rfind(')');
             if (ps == std::string::npos || pe == std::string::npos) {
                 std::cerr << "Syntax error in INSERT: missing parentheses in VALUES\n";
@@ -162,21 +186,18 @@ int main() {
                 continue;
             }
             std::cout << "[OK] Inserted into table: " << tName << std::endl;
-            // نسجّل الصف في سطر يبدأ بـ "ROW:"
             f << "ROW: [COLUMNS] " << cols << " [VALUES] " << vals << "\n";
             f.close();
         }
 
         // SELECT * FROM tableName
         else if (startsWith(line, "SELECT * FROM")) {
-            // مثال: SELECT * FROM customer
+            // يعرض محتويات الجدول أو يعدّ الصفوف
+            // Displays table contents or counts rows
             std::string tName = trim(line.substr(13));
-            // فحص أوامر خاصة: SELECT COUNT(*) FROM ...
             if (startsWith(tName, "COUNT(*) FROM")) {
-                // صيغة: SELECT COUNT(*) FROM tableName
-                // نفصل "COUNT(*) FROM "
+                // مثال: SELECT COUNT(*) FROM customer
                 std::string rest = trim(tName.substr(11)); 
-                // rest هو اسم الجدول
                 std::string tbl = trim(rest);
                 std::string tblPath = tbl + ".tbl";
                 std::ifstream inTbl(tblPath);
@@ -211,9 +232,9 @@ int main() {
 
         // UPDATE tableName SET col=val,... WHERE col2=val2
         else if (startsWith(line, "UPDATE ")) {
-            // مثال: UPDATE customer SET customer_email='email333' WHERE customer_id=3
+            // يعدّل قيم الصفوف المطابقة للشرط
+            // Updates row values matching the WHERE condition
             std::string s = trim(line.substr(6)); 
-            // اسحب اسم الجدول
             auto sp = s.find(' ');
             if (sp == std::string::npos) {
                 std::cerr << "Syntax error in UPDATE: missing tableName\n";
@@ -221,13 +242,11 @@ int main() {
             }
             std::string tName = trim(s.substr(0, sp));
             std::string rest = trim(s.substr(sp + 1));
-            // نتوقع: SET ...
             if (!startsWith(rest, "SET ")) {
                 std::cerr << "Syntax error in UPDATE: missing 'SET'\n";
                 continue;
             }
             rest = trim(rest.substr(4)); 
-            // ابحث عن WHERE
             auto whPos = rest.find("WHERE");
             if (whPos == std::string::npos) {
                 std::cerr << "Syntax error in UPDATE: missing WHERE clause\n";
@@ -236,10 +255,7 @@ int main() {
             std::string setPart = trim(rest.substr(0, whPos));
             std::string wherePart = trim(rest.substr(whPos + 5));
 
-            // نفصل setPart بفواصل
-            // شكل col=val,col2=val2
             auto setsVec = split(setPart, ',');
-            // wherePart يفترض col=val
             auto eqPos = wherePart.find('=');
             if (eqPos == std::string::npos) {
                 std::cerr << "Syntax error in UPDATE: invalid WHERE col=val\n";
@@ -248,7 +264,6 @@ int main() {
             std::string wCol = trim(wherePart.substr(0, eqPos));
             std::string wVal = trim(wherePart.substr(eqPos + 1));
 
-            // نقرأ الجدول كامل ونعدّل
             std::string tblPath = tName + ".tbl";
             std::ifstream inTbl(tblPath);
             if (!inTbl.is_open()) {
@@ -268,29 +283,17 @@ int main() {
             for (auto& l : fileLines) {
                 if (startsWith(l, "ROW:")) {
                     // ROW: [COLUMNS] col1,col2 [VALUES] val1,val2
-                    // نفصل جزئيًا للحصول على col=val
-                    // لكننا سنحولها لأسلوب "colName=valName"
                     auto rowPart = trim(l.substr(4)); 
-                    // نقسمه لنصين: [COLUMNS]... و[VALUES]...
-                    // ابسط طريقة: ابحث عن "[VALUES]"
                     auto valPos = rowPart.find("[VALUES]");
                     if (valPos == std::string::npos) continue;
-                    // استخراج أعمدة وقيم
-                    std::string colsStr = trim(rowPart.substr(9, valPos - 9)); // بعد [COLUMNS]
-                    std::string valsStr = trim(rowPart.substr(valPos + 8));   // بعد [VALUES]
-                    // ممكن تحتوي valsStr على قيم
-                    // نزيل بدايته لو كان فيه مسافات
-                    valsStr = trim(valsStr);
+                    std::string colsStr = trim(rowPart.substr(9, valPos - 9));
+                    std::string valsStr = trim(rowPart.substr(valPos + 8));
 
                     auto colsList = split(colsStr, ',');
                     auto valsList = split(valsStr, ',');
 
-                    if (colsList.size() != valsList.size()) {
-                        // تجاهل هذا الصف
-                        continue;
-                    }
+                    if (colsList.size() != valsList.size()) continue;
 
-                    // نشيك هل هذا الصف يطابق ال WHERE
                     bool match = false;
                     for (size_t i = 0; i < colsList.size(); i++) {
                         auto cName = trim(colsList[i]);
@@ -302,21 +305,17 @@ int main() {
                     }
 
                     if (match) {
-                        // طبق التحديث
                         for (auto& sPart : setsVec) {
                             auto eqp = sPart.find('=');
                             if (eqp == std::string::npos) continue;
                             std::string setCol = trim(sPart.substr(0, eqp));
                             std::string setVal = trim(sPart.substr(eqp + 1));
-                            // عدّل في valsList إن طابق الاسم
                             for (size_t i = 0; i < colsList.size(); i++) {
                                 if (trim(colsList[i]) == setCol) {
                                     valsList[i] = setVal;
                                 }
                             }
                         }
-                        // إعادة بناء السطر
-                        // ROW: [COLUMNS] col1,col2 [VALUES] val1,val2
                         std::string newLine = "ROW: [COLUMNS] " + colsList[0];
                         for (size_t i = 1; i < colsList.size(); i++) {
                             newLine += "," + colsList[i];
@@ -332,7 +331,6 @@ int main() {
             }
 
             if (updatedAny) {
-                // إعادة الكتابة
                 std::ofstream outTbl(tblPath, std::ios::trunc);
                 if (!outTbl.is_open()) {
                     std::cerr << "Could not open table file to rewrite after update.\n";
@@ -350,7 +348,8 @@ int main() {
 
         // DELETE FROM tableName WHERE col=val
         else if (startsWith(line, "DELETE FROM")) {
-            // مثال: DELETE FROM customer WHERE customer_id=4
+            // يحذف الصفوف اللي ينطبق عليها الشرط
+            // Deletes rows matching the WHERE condition
             std::string s = trim(line.substr(11));
             auto sp = s.find("WHERE");
             if (sp == std::string::npos) {
@@ -406,7 +405,8 @@ int main() {
                     }
 
                     if (match) {
-                        // امسح السطر
+                        // نخلي السطر فاضي عشان نحذفه
+                        // Clear the line to remove it
                         l.clear();
                         deletedAny = true;
                     }
@@ -432,6 +432,8 @@ int main() {
         }
 
         else {
+            // أمر ما تعرّفنا عليه
+            // Unrecognized command
             std::cout << "[WARN] Unrecognized command: " << line << std::endl;
         }
     }
